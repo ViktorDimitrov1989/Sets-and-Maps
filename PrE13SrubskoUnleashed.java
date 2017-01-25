@@ -5,30 +5,25 @@ import java.util.regex.Pattern;
 public class PrE13SrubskoUnleashed {
     public static void main(String[] args) {
         Scanner scan = new Scanner(System.in);
-        String regexp = "(^\\D+)\\s(\\d+)\\s(\\d+)";
+        String regexp = "^([a-zA-Z\\s]+) @([a-zA-z\\s]+)\\s([\\d.]+)\\s([\\d.]+)";
         Pattern townPattern = Pattern.compile(regexp);
-        LinkedHashMap<String, LinkedHashMap<String,Long>> map = new LinkedHashMap<>();
+        LinkedHashMap<String, LinkedHashMap<String,Double>> map = new LinkedHashMap<>();
 
         while (true){
             String input = scan.nextLine();
             if(input.equals("End")){
                 break;
             }
-            if(input.equals("Ceca@Belgrade125 12378")
-                    ||input.equals("Ceca @Belgrade12312 123")){
-                return;
-            }
-            String singer = input.split("@")[0].trim();
-            String townMatcher = input.split("@")[1];
-            Matcher m = townPattern.matcher(townMatcher);
+            Matcher m = townPattern.matcher(input);
             if(m.find()){
-                String town = m.group(1);
-                Long ticketsPrice = Long.parseLong(m.group(2));
-                Long ticketsCnt = Long.parseLong(m.group(3));
-                Long overAllPrice = ticketsPrice * ticketsCnt;
+                String singer = m.group(1);
+                String town = m.group(2);
+                Double ticketsPrice = Double.parseDouble(m.group(3));
+                Long ticketsCnt = Long.parseLong(m.group(4));
+                Double overAllPrice = ticketsPrice * ticketsCnt;
 
                 if(!map.containsKey(town)){
-                    map.put(town, new LinkedHashMap<String,Long>());
+                    map.put(town, new LinkedHashMap<String,Double>());
                     map.get(town).put(singer,overAllPrice);
                 }
                 else{
@@ -36,20 +31,21 @@ public class PrE13SrubskoUnleashed {
                         map.get(town).put(singer,overAllPrice);
                     }
                     else{
-                        Long oldIncome = map.get(town).get(singer);
+                        Double oldIncome = map.get(town).get(singer);
                         map.get(town).put(singer, oldIncome + overAllPrice);
                     }
                 }
             }
         }
 
-        for(Map.Entry<String, LinkedHashMap<String,Long>> entry: map.entrySet()){
+        for(Map.Entry<String, LinkedHashMap<String,Double>> entry: map.entrySet()){
             System.out.println(entry.getKey());
-            for (Map.Entry<String, Long> innerEntry: entriesSortedByValues(map.get(entry.getKey()))){
-                System.out.println("#  " + innerEntry.getKey() + " -> " + innerEntry.getValue());
+            for (Map.Entry<String, Double> innerEntry: entriesSortedByValues(map.get(entry.getKey()))){
+                System.out.printf("#  %s -> %.0f%n", innerEntry.getKey(), innerEntry.getValue());
             }
         }
     }
+
     static <K,V extends Comparable<? super V>>
     SortedSet<Map.Entry<K,V>> entriesSortedByValues(Map<K,V> map) {
         SortedSet<Map.Entry<K,V>> sortedEntries = new TreeSet<Map.Entry<K,V>>(
